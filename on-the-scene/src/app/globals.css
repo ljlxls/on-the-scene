@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0f;
+  --foreground: #ededed;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, #1a237e 0%, #0d47a1 50%, #1a237e 100%);
+}
+
+.card-hover {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(26, 35, 126, 0.3);
+}
+
+.message-user {
+  background: linear-gradient(135deg, #1a237e, #283593);
+}
+
+.message-character {
+  background: linear-gradient(135deg, #1e3a5f, #1a237e);
+}
+
+.message-narrator {
+  background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+  border-left: 3px solid #ffd700;
+}

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>亲临其境 — AI角色扮演游戏平台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a237e;
+      --primary-light: #3949ab;
+      --accent: #ffd700;
+      --accent-hover: #ffeb3b;
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-card-hover: #1a1a25;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0b0;
+      --text-muted: #6a6a7a;
+      --border: #2a2a3a;
+      --gradient-1: linear-gradient(135deg, #1a237e 0%, #0d47a1 50%, #1a237e 100%);
+      --gradient-2: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+      --shadow-glow: 0 0 60px rgba(26, 35, 126, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 1rem 2rem;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .nav-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      background: var(--gradient-2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--gradient-2);
+      color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-primary);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary-light);
+      background: rgba(26, 35, 126, 0.1);
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 2rem 4rem;
+      background: var(--gradient-1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+    }
+
+    .hero-content {
+      max-width: 1200px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 215, 0, 0.1);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 50px;
+      font-size: 0.875rem;
+      color: var(--accent);
+      margin-bottom: 2rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 900;
+      margin-bottom: 1.5rem;
+      line-height: 1.1;
+    }
+
+    .hero h1 span {
+      background: var(--gradient-2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      max-width: 700px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      justify-content: center;
+      margin-top: 4rem;
+      padding-top: 3rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    /* Section Styles */
+    .section {
+      padding: 6rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 1rem;
+    }
+
+    .section-header p {
+      color: var(--text-secondary);
+      font-size: 1.125rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary-light);
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--gradient-1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+    }
+
+    /* How it works */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .step {
+      position: relative;
+      padding: 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .step-number {
+      position: absolute;
+      top: -1rem;
+      left: 2rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      background: var(--gradient-2);
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.25rem;
+    }
+
+    .step h3 {
+      margin-top: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .step p {
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+    }
+
+    /* Architecture */
+    .architecture {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      margin-top: 3rem;
+    }
+
+    .arch-diagram {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .arch-layer {
+      background: rgba(26, 35, 126, 0.1);
+      border: 1px solid var(--primary-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .arch-layer h4 {
+      color: var(--accent);
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .arch-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .arch-item {
+      background: var(--bg-dark);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    /* Tech Stack */
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .tech-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-size: 0.9375rem;
+      transition: all 0.3s ease;
+    }
+
+    .tech-badge:hover {
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    /* CTA Section */
+    .cta {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: var(--gradient-1);
+      border-radius: 24px;
+      margin: 4rem auto;
+      max-width: 1200px;
+    }
+
+    .cta h2 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 1rem;
+    }
+
+    .cta p {
+      color: var(--text-secondary);
+      font-size: 1.125rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .footer-copy {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .arch-diagram {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* Animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .float {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    /* Scroll animations */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-content">
+      <div class="logo">🎭 亲临其境</div>
+      <div class="nav-links">
+        <a href="#features">功能特性</a>
+        <a href="#how-it-works">使用指南</a>
+        <a href="#architecture">技术架构</a>
+        <a href="https://gitee.com/ddxydbl/on-the-scene" target="_blank">GitHub</a>
+        <a href="/upload" class="btn btn-primary">开始体验</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        🎉 新版本 v1.0.0 发布
+      </div>
+      <h1>
+        上传小说，<span>AI</span> 帮你<br>
+        生成沉浸式角色扮演体验
+      </h1>
+      <p>
+        基于多智能体协作引擎，自动分析小说、提取角色、构建世界观，让你扮演小说中的角色，与AI角色互动推进故事发展。
+      </p>
+      <div class="hero-buttons">
+        <a href="http://localhost:3002" class="btn btn-primary">
+          🚀 立即开始
+        </a>
+        <a href="https://gitee.com/ddxydbl/on-the-scene" class="btn btn-secondary" target="_blank">
+          📖 查看文档
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-value">3+</div>
+          <div class="stat-label">支持的大模型API</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">∞</div>
+          <div class="stat-label">无限角色扮演</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">100%</div>
+          <div class="stat-label">开源免费</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="section">
+    <div class="section-header">
+      <h2>核心功能</h2>
+      <p>基于OpenMAIC成熟架构，为角色扮演场景深度优化</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <div class="feature-icon">📚</div>
+        <h3>小说智能分析</h3>
+        <p>上传PDF或TXT格式小说，AI自动分析并提取世界观、角色、情节等核心元素。</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🌍</div>
+        <h3>世界观构建</h3>
+        <p>自动生成小说世界的背景、规则、地理环境、社会结构等完整世界观设定。</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🎭</div>
+        <h3>角色智能体生成</h3>
+        <p>每个角色拥有独立的灵魂文件、记忆系统和行为习惯，保持角色一致性。</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🎬</div>
+        <h3>导演智能体</h3>
+        <p>上帝之手智能体负责叙述故事、推进剧情、协调多角色互动。</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🔄</div>
+        <h3>动态角色切换</h3>
+        <p>用户可以在不同角色间自由切换，体验不同视角的故事发展。</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">💬</div>
+        <h3>沉浸式互动</h3>
+        <p>与AI角色实时对话，你的每一个选择都会影响故事走向。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how-it-works" class="section" style="background: var(--bg-card); max-width: 100%; padding: 6rem 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+      <div class="section-header">
+        <h2>使用指南</h2>
+        <p>简单四步，开启你的角色扮演之旅</p>
+      </div>
+      <div class="steps">
+        <div class="step fade-in">
+          <div class="step-number">1</div>
+          <h3>配置API密钥</h3>
+          <p>在设置页面配置你的大模型API密钥（支持Groq、DeepSeek等免费API）。</p>
+        </div>
+        <div class="step fade-in">
+          <div class="step-number">2</div>
+          <h3>上传小说</h3>
+          <p>上传TXT格式的小说文件，AI将自动分析并提取世界观和角色信息。</p>
+        </div>
+        <div class="step fade-in">
+          <div class="step-number">3</div>
+          <h3>选择角色</h3>
+          <p>浏览AI提取的角色列表，选择你想扮演的角色。</p>
+        </div>
+        <div class="step fade-in">
+          <div class="step-number">4</div>
+          <h3>开始扮演</h3>
+          <p>输入你的行动或对话，与AI角色互动，推进故事发展。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section id="architecture" class="section">
+    <div class="section-header">
+      <h2>技术架构</h2>
+      <p>基于成熟的多智能体编排系统构建</p>
+    </div>
+    <div class="architecture">
+      <div class="arch-diagram">
+        <div class="arch-layer">
+          <h4>前端层</h4>
+          <div class="arch-items">
+            <div class="arch-item">Next.js 15 App Router</div>
+            <div class="arch-item">React 19</div>
+            <div class="arch-item">Tailwind CSS</div>
+            <div class="arch-item">Zustand 状态管理</div>
+          </div>
+        </div>
+        <div class="arch-layer">
+          <h4>服务层</h4>
+          <div class="arch-items">
+            <div class="arch-item">世界构建服务</div>
+            <div class="arch-item">角色生成服务</div>
+            <div class="arch-item">故事生成服务</div>
+            <div class="arch-item">大模型服务</div>
+          </div>
+        </div>
+        <div class="arch-layer">
+          <h4>智能体层</h4>
+          <div class="arch-items">
+            <div class="arch-item">导演智能体 (上帝之手)</div>
+            <div class="arch-item">角色智能体 (NPC)</div>
+            <div class="arch-item">灵魂文件系统</div>
+            <div class="arch-item">记忆系统</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top: 4rem;">
+      <h2>技术栈</h2>
+    </div>
+    <div class="tech-stack">
+      <div class="tech-badge">⚛️ React 19</div>
+      <div class="tech-badge">🔷 Next.js 15</div>
+      <div class="tech-badge">🎨 Tailwind CSS</div>
+      <div class="tech-badge">🐻 Zustand</div>
+      <div class="tech-badge">🤖 LangGraph</div>
+      <div class="tech-badge">⚡ Groq API</div>
+      <div class="tech-badge">🧠 DeepSeek</div>
+      <div class="tech-badge">💾 IndexedDB</div>
+      <div class="tech-badge">📘 TypeScript</div>
+    </div>
+  </section>
+
+  <!-- Core Concepts -->
+  <section class="section" style="background: var(--bg-card); max-width: 100%; padding: 6rem 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+      <div class="section-header">
+        <h2>核心概念</h2>
+        <p>借鉴OpenMAIC成熟设计，为角色扮演场景深度定制</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card fade-in">
+          <div class="feature-icon">📜</div>
+          <h3>灵魂文件 (SoulFile)</h3>
+          <p>定义角色的核心性格、背景故事、价值观和行为准则，确保角色行为一致性。</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon">🧠</div>
+          <h3>记忆系统 (Memory)</h3>
+          <p>短期记忆记录当前会话事件，长期记忆存储重要经历和关系发展。</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon">🎯</div>
+          <h3>习惯文件 (Habit)</h3>
+          <p>定义角色的说话习惯、行为模式和决策风格，让角色更加真实。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section style="padding: 0 2rem;">
+    <div class="cta">
+      <h2>准备好开始了吗？</h2>
+      <p>上传你的小说，开启沉浸式角色扮演体验</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="http://localhost:3002" class="btn btn-primary">
+          🚀 开始体验
+        </a>
+        <a href="https://gitee.com/ddxydbl/on-the-scene" class="btn btn-secondary" target="_blank">
+          📦 查看源码
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="/upload">在线体验</a>
+        <a href="https://gitee.com/ddxydbl/on-the-scene" target="_blank">Gitee</a>
+        <a href="https://gitee.com/ddxydbl/on-the-scene/issues" target="_blank">问题反馈</a>
+        <a href="mailto:179239647@qq.com">联系我们</a>
+      </div>
+      <p class="footer-copy">
+        © 2024 亲临其境. 基于 OpenMAIC 架构开发. MIT License.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('.nav');
+      if (window.scrollY > 50) {
+        nav.style.background = 'rgba(10, 10, 15, 0.95)';
+      } else {
+        nav.style.background = 'rgba(10, 10, 15, 0.8)';
+      }
+    });
+  </script>
+</body>
+</html>
