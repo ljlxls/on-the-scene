@@ -1,4 +1,5 @@
-import { LLMConfig, ChatMessageInput } from '../types';
+import { LLMConfig, ChatMessageInput, LLMProvider } from '../types';
+import { LLM_PROVIDERS } from '../types';
 
 export class LLMService {
   private config: LLMConfig | null = null;
@@ -20,14 +21,12 @@ export class LLMService {
     }
     
     const endpoint = this.getEndpoint();
+    const headers = this.getHeaders();
     
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.apiKey}`
-        },
+        headers,
         body: JSON.stringify({
           model: this.config.modelName,
           messages,
@@ -60,13 +59,11 @@ export class LLMService {
     }
     
     const endpoint = this.getEndpoint();
+    const headers = this.getHeaders();
     
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.apiKey}`
-      },
+      headers,
       body: JSON.stringify({
         model: this.config.modelName,
         messages,
@@ -107,34 +104,47 @@ export class LLMService {
     }
   }
   
+  private getHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    // 本地模型可能不需要API密钥
+    if (this.config?.apiKey && !this.isLocalProvider()) {
+      headers['Authorization'] = `Bearer ${this.config.apiKey}`;
+    }
+    
+    return headers;
+  }
+  
+  private isLocalProvider(): boolean {
+    const provider = this.config?.provider;
+    return provider === 'ollama' || provider === 'lmstudio' || provider === 'llamacpp';
+  }
+  
   private getEndpoint(): string {
     if (this.config?.endpoint) {
       return this.config.endpoint;
     }
     
-    switch (this.config?.provider) {
-      case 'groq':
-        return 'https://api.groq.com/openai/v1/chat/completions';
-      case 'deepseek':
-        return 'https://api.deepseek.com/v1/chat/completions';
-      case 'openai':
-        return 'https://api.openai.com/v1/chat/completions';
-      default:
-        throw new Error('Unknown provider');
-    }
+    const providerInfo = LLM_PROVIDERS.find(p => p.id === this.config?.provider);
+    return providerInfo?.defaultEndpoint || '';
   }
   
-  getDefaultModelName(provider: string): string {
-    switch (provider) {
-      case 'groq':
-        return 'llama-3.3-70b-versatile';
-      case 'deepseek':
-        return 'deepseek-chat';
-      case 'openai':
-        return 'gpt-3.5-turbo';
-      default:
-        return '';
-    }
+  getProviderInfo(providerId: LLMProvider) {
+    return LLM_PROVIDERS.find(p => p.id === providerId);
+  }
+  
+  getAllProviders() {
+    return LLM_PROVIDERS;
+  }
+  
+  getCloudProviders() {
+    return LLM_PROVIDERS.filter(p => !p.isLocal);
+  }
+  
+  getLocalProviders() {
+    return LLM_PROVIDERS.filter(p => p.isLocal);
   }
 }
 
